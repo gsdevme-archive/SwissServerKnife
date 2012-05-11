@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+
+	<head>
+		<title>{title}</title>
+
+		<link rel="stylesheet" href="{css}bootstrap.min.css"/>
+		<link rel="stylesheet" href="{css}bootstrap-responsive.min.css"/>
+		<link rel="stylesheet" href="{css}application.css"/>
+	</head>
+
+	<body>
+
+		<div class="navbar navbar-fixed-top">
+			<div class="navbar-inner">
+				<div class="container">
+					<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>							
+					</a>
+
+					<a class="brand" href="#">Swiss-Server-Knife</a>
+
+					<div class="nav-collapse">
+						<ul class="nav pull-right">
+							<li><a href="">Home</a></li>
+							<li class="dropdown">
+								<a class="dropdown-toggle" data-toggle="dropdown" href="#">Database<b class="caret"></b></a>
+
+								<ul class="dropdown-menu">
+									<li><a href="">Browse</a></li>
+									<li><a href="">Users & Permissions</a></li>
+									<li><a href="">Configuration</a></li>
+
+									<li class="divider"></li>
+
+									<li><a href="">Import Database</a></li>
+									<li><a href="">Export Database</a></li>
+								</ul>
+							</li>
+
+							<li class="dropdown">
+								<a class="dropdown-toggle" data-toggle="dropdown" href="#">Server<b class="caret"></b></a>
+
+								<ul class="dropdown-menu">
+									<li><a href="">Status</a></li>
+
+									<li class="divider"></li>
+
+									<li><a href="{url}server/phpinfo">PHPInfo</a></li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>		
+
+		<div class="container">
+			<div class="row">
+				<div class="span12 phpinfo">
+				</div>
+			</div>
+		</div>
+
+		<script src="{js}jquery.js"></script>
+		<script src="{js}bootstrap-transition.js"></script>
+		<script src="{js}bootstrap-alert.js"></script>
+		<script src="{js}bootstrap-modal.js"></script>
+		<script src="{js}bootstrap-dropdown.js"></script>
+		<script src="{js}bootstrap-scrollspy.js"></script>
+		<script src="{js}bootstrap-tab.js"></script>
+		<script src="{js}bootstrap-tooltip.js"></script>
+		<script src="{js}bootstrap-popover.js"></script>
+		<script src="{js}bootstrap-button.js"></script>
+		<script src="{js}bootstrap-collapse.js"></script>
+		<script src="{js}bootstrap-carousel.js"></script>
+		<script src="{js}bootstrap-typeahead.js"></script>
+
+		<script>
+			(function(){
+				$.ajax({
+					url: "{url}server/phpinforender",
+					contentType: 'text/html',
+					success: function(data) {
+						$('.phpinfo').html(data);
+					}					
+				});
+			})();
+		</script>
+	</body>
+
+</html>
