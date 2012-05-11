@@ -1,0 +1,13 @@
+@media (min-width: 768px) {
+	body{
+		padding-top:60px;
+	}
+}
+
+.phpinfo .e{
+	width:200px;
+	vertical-align: middle;
+}
+.phpinfo .v{
+	width:auto;
+}
