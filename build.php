@@ -52,7 +52,7 @@
 
 		if(($it->getExtension() == 'html')){
 			$html = preg_replace('/\r\n+|\r+|\n+|\t+/i', null, file_get_contents((string)$it->current()));			
-			$build->fwrite("\t\t\t" . 'protected static $' . str_replace('.html', null, $it->getFileName()) . '="' . addcslashes($html, '"') . '";' . "\n");
+			$build->fwrite("\t\t\t" . 'protected static $' . str_replace('.html', null, $it->getFileName()) . '="' . addcslashes($html, '"$') . '";' . "\n");
 			
 		}
 	}
