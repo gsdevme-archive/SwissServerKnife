@@ -37,6 +37,16 @@
 				if(isset($_SERVER, $_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME'])){
 					$request = substr(str_replace($_SERVER['SCRIPT_NAME'], null, $_SERVER['REQUEST_URI']), 1);
 
+					// Remove '/' Prefix
+					if (substr($request, 0, 1) == '/') {
+						$request = substr($request, 1);
+					}
+
+					// Remove '/' Suffix
+					if (substr($request, strlen($request) - 1, 1) == '/') {
+						$request = substr($request, 0, strlen($request) - 1);
+					}					
+
 					if(!$request){
 						$request = 'home/index';
 					}
@@ -55,7 +65,9 @@
 					$controllerClass = new ReflectionClass('\SSK\Controllers\\' . array_shift($route));
 					$controllerMethod = new ReflectionMethod($controllerClass->name, array_shift($route));
 
-					$controllerMethod->invoke($controllerClass->newInstance());
+					if(($controllerMethod->isPublic() && (!$controllerMethod->isConstructor()))){
+						$controllerMethod->invoke($controllerClass->newInstance());
+					}					
 				}catch(ReflectionException $e){
 
 				}
