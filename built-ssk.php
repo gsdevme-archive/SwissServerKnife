@@ -1,6 +1,6 @@
 <?php
 
-	// Built: May 9, 2012, 1:59 pm
+	// Built: May 11, 2012, 11:28 pm
 
 	// File: /Users/gav/Development/Web Development/SwissServerKnife/index.php
 
@@ -48,12 +48,40 @@
 
 	namespace SSK\Controllers{
 
+		use \SSK\SwissServerKnife;
+		use \SSK\System\ViewRender;
+
 		abstract class Controller
 		{
 
+			protected $url, $css, $js, $img;
+
 			public function __construct()
 			{
-				
+				$this->url = (((isset($_SERVER['HTTPS'])) && (!empty($_SERVER['HTTPS']))) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . '/';
+
+				// Check if we have any assets, if not load from the CDN
+				if(is_dir(SwissServerKnife::getRoot() . '/assets')){
+					$this->css = $this->url . 'assets/css/';
+					$this->js = $this->url . 'assets/js/';
+					$this->img = $this->url . 'assets/img/';
+				}else{
+					die('no CDN');
+				}
+
+				$this->url .= $_SERVER['SCRIPT_NAME'] . '/';
+			}
+
+			protected function render($view, array $args=null)
+			{
+				$args = array_merge(array(
+					'url' => $this->url,
+					'css' => $this->css,
+					'js' => $this->js,
+					'img' => $this->img,
+				), (array)$args);
+
+				return ViewRender::render($view, $args);
 			}
 		}
 	}
@@ -65,24 +93,47 @@
 
 	namespace SSK\Controllers{
 
-		use \SSK\System\ViewRender;
-
 		class Home extends Controller
 		{
 
 			public function index()
 			{
 				$a = array(
-					'pagetitle' => 'hello',
-					'piss' => array(
-						array('title' => 'An amazing title', 'body' => 'some body text and stuff'),
-						array('title' => 'Another title', 'body' => 'foobar sticks'),
-					),
-
-					'd' => range(1,3),
+					'title' => 'hello',
 				);
 
-				ViewRender::render('test', $a);				
+				$this->render('index', $a);				
+			}
+		}
+	}
+
+	// File: /Users/gav/Development/Web Development/SwissServerKnife/SSK/Controllers/Server.php
+
+
+	namespace SSK\Controllers{
+
+		class Server extends Controller
+		{
+
+			public function phpinfo()
+			{
+				$a = array(
+					'title' => 'hello',
+				);
+
+				$this->render('phpinfo', $a);				
+			}
+
+			public function phpinforender()
+			{
+				ob_start(function($buffer){
+					$buffer = str_replace('<table border="0" cellpadding="3" width="600">', '<table class="table table-striped">', preg_replace('/<style type="text\/css">(.*?)<\/style>/sim', null, $buffer));
+
+					return preg_replace('/<td class="v">(.*?)<\/td>/sim', '<td class="v"><pre>$1</pre></td>', $buffer);
+				});
+
+				phpinfo();
+				exit;
 			}
 		}
 	}
@@ -127,6 +178,16 @@
 				if(isset($_SERVER, $_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME'])){
 					$request = substr(str_replace($_SERVER['SCRIPT_NAME'], null, $_SERVER['REQUEST_URI']), 1);
 
+					// Remove '/' Prefix
+					if (substr($request, 0, 1) == '/') {
+						$request = substr($request, 1);
+					}
+
+					// Remove '/' Suffix
+					if (substr($request, strlen($request) - 1, 1) == '/') {
+						$request = substr($request, 0, strlen($request) - 1);
+					}					
+
 					if(!$request){
 						$request = 'home/index';
 					}
@@ -145,7 +206,9 @@
 					$controllerClass = new ReflectionClass('\SSK\Controllers\\' . array_shift($route));
 					$controllerMethod = new ReflectionMethod($controllerClass->name, array_shift($route));
 
-					$controllerMethod->invoke($controllerClass->newInstance());
+					if(($controllerMethod->isPublic() && (!$controllerMethod->isConstructor()))){
+						$controllerMethod->invoke($controllerClass->newInstance());
+					}					
 				}catch(ReflectionException $e){
 
 				}
@@ -270,8 +333,8 @@
 
 		class ViewFactory extends ViewFactoryAbstract{
 
-			protected static $foo="<html><head><title>gg</title></head><body></body></html>";
-			protected static $test="<!doctype html><html><head><title>Hello!</title><style>.shit{width:800px;margin:20px auto;}</style></head><body><h1 class=\"shit\">{pagetitle}</h1>{foreach piss as item}<div class=\"shit\"><h3>{item.title}</h3><p>{item.body}</p></div>{foreach}{foreach d as h}<div class=\"shit\"><h3>{h}</h3></div>{foreach}</body></html>";
+			protected static $index="<!doctype html><html><head><title>{title}</title><link rel=\"stylesheet\" href=\"{css}bootstrap.min.css\"/><link rel=\"stylesheet\" href=\"{css}bootstrap-responsive.min.css\"/><link rel=\"stylesheet\" href=\"{css}application.css\"/></head><body><div class=\"navbar navbar-fixed-top\"><div class=\"navbar-inner\"><div class=\"container\"><a class=\"btn btn-navbar\" data-toggle=\"collapse\" data-target=\".nav-collapse\"><span class=\"icon-bar\"></span><span class=\"icon-bar\"></span><span class=\"icon-bar\"></span></a><a class=\"brand\" href=\"#\">Swiss-Server-Knife</a><div class=\"nav-collapse\"><ul class=\"nav pull-right\"><li><a href=\"\">Home</a></li><li class=\"dropdown\"><a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\">Database<b class=\"caret\"></b></a><ul class=\"dropdown-menu\"><li><a href=\"\">Browse</a></li><li><a href=\"\">Users & Permissions</a></li><li><a href=\"\">Configuration</a></li><li class=\"divider\"></li><li><a href=\"\">Import Database</a></li><li><a href=\"\">Export Database</a></li></ul></li><li class=\"dropdown\"><a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\">Server<b class=\"caret\"></b></a><ul class=\"dropdown-menu\"><li><a href=\"\">Status</a></li><li class=\"divider\"></li><li><a href=\"{url}server/phpinfo\">PHPInfo</a></li></ul></li></ul></div></div></div></div><div class=\"container\"></div><script src=\"{js}jquery.js\"></script><script src=\"{js}bootstrap-transition.js\"></script><script src=\"{js}bootstrap-alert.js\"></script><script src=\"{js}bootstrap-modal.js\"></script><script src=\"{js}bootstrap-dropdown.js\"></script><script src=\"{js}bootstrap-scrollspy.js\"></script><script src=\"{js}bootstrap-tab.js\"></script><script src=\"{js}bootstrap-tooltip.js\"></script><script src=\"{js}bootstrap-popover.js\"></script><script src=\"{js}bootstrap-button.js\"></script><script src=\"{js}bootstrap-collapse.js\"></script><script src=\"{js}bootstrap-carousel.js\"></script><script src=\"{js}bootstrap-typeahead.js\"></script></body></html>";
+			protected static $phpinfo="<!doctype html><html><head><title>{title}</title><link rel=\"stylesheet\" href=\"{css}bootstrap.min.css\"/><link rel=\"stylesheet\" href=\"{css}bootstrap-responsive.min.css\"/><link rel=\"stylesheet\" href=\"{css}application.css\"/></head><body><div class=\"navbar navbar-fixed-top\"><div class=\"navbar-inner\"><div class=\"container\"><a class=\"btn btn-navbar\" data-toggle=\"collapse\" data-target=\".nav-collapse\"><span class=\"icon-bar\"></span><span class=\"icon-bar\"></span><span class=\"icon-bar\"></span></a><a class=\"brand\" href=\"#\">Swiss-Server-Knife</a><div class=\"nav-collapse\"><ul class=\"nav pull-right\"><li><a href=\"\">Home</a></li><li class=\"dropdown\"><a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\">Database<b class=\"caret\"></b></a><ul class=\"dropdown-menu\"><li><a href=\"\">Browse</a></li><li><a href=\"\">Users & Permissions</a></li><li><a href=\"\">Configuration</a></li><li class=\"divider\"></li><li><a href=\"\">Import Database</a></li><li><a href=\"\">Export Database</a></li></ul></li><li class=\"dropdown\"><a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\">Server<b class=\"caret\"></b></a><ul class=\"dropdown-menu\"><li><a href=\"\">Status</a></li><li class=\"divider\"></li><li><a href=\"{url}server/phpinfo\">PHPInfo</a></li></ul></li></ul></div></div></div></div><div class=\"container\"><div class=\"row\"><div class=\"span12 phpinfo\"></div></div></div><script src=\"{js}jquery.js\"></script><script src=\"{js}bootstrap-transition.js\"></script><script src=\"{js}bootstrap-alert.js\"></script><script src=\"{js}bootstrap-modal.js\"></script><script src=\"{js}bootstrap-dropdown.js\"></script><script src=\"{js}bootstrap-scrollspy.js\"></script><script src=\"{js}bootstrap-tab.js\"></script><script src=\"{js}bootstrap-tooltip.js\"></script><script src=\"{js}bootstrap-popover.js\"></script><script src=\"{js}bootstrap-button.js\"></script><script src=\"{js}bootstrap-collapse.js\"></script><script src=\"{js}bootstrap-carousel.js\"></script><script src=\"{js}bootstrap-typeahead.js\"></script><script>(function(){\$.ajax({url: \"{url}server/phpinforender\",contentType: 'text/html',success: function(data) {\$('.phpinfo').html(data);}});})();</script></body></html>";
 		}
 
 	}
