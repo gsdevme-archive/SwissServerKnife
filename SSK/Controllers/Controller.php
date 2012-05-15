@@ -12,13 +12,13 @@
 
 			public function __construct()
 			{
-				$this->url = (((isset($_SERVER['HTTPS'])) && (!empty($_SERVER['HTTPS']))) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . '/';
+				$this->url = (((isset($_SERVER['HTTPS'])) && (!empty($_SERVER['HTTPS']))) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'];
 
 				// Check if we have any assets, if not load from the CDN
 				if(is_dir(SwissServerKnife::getRoot() . '/assets')){
-					$this->css = $this->url . 'assets/css/';
-					$this->js = $this->url . 'assets/js/';
-					$this->img = $this->url . 'assets/img/';
+					$this->css = $this->url . '/assets/css/';
+					$this->js = $this->url . '/assets/js/';
+					$this->img = $this->url . '/assets/img/';
 				}else{
 					die('no CDN');
 				}
