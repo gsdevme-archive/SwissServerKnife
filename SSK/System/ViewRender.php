@@ -51,11 +51,9 @@
 							$return .= $element;
 						}
 					}
-
-					return $return;
 				}
 
-				return null;
+				return $return;
 			}
 
 			private static function _print($value)
