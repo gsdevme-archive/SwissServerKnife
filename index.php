@@ -25,10 +25,10 @@
 			if(file_exists($file)){
 				return require_once $file;
 			}
-		});	
+		});
 
 		try{
-			$ssk = new \SSK\SwissServerKnife($root, $password);			
+			$ssk = new \SSK\SwissServerKnife($root, $password);
 			$ssk->authenicate()->request()->route();
 
 			unset($root, $password);

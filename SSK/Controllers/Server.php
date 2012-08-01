@@ -11,7 +11,7 @@
 					'title' => 'hello',
 				);
 
-				$this->render('phpinfo', $a);				
+				$this->render('phpinfo', $a);
 			}
 
 			public function phpinforender()

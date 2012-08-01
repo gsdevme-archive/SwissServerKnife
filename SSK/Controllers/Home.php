@@ -11,7 +11,7 @@
 					'title' => 'hello',
 				);
 
-				$this->render('index', $a);				
+				$this->render('index', $a);
 			}
 		}
 	}
