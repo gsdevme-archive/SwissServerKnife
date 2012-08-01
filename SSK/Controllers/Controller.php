@@ -16,9 +16,11 @@
 
 				// Check if we have any assets, if not load from the CDN
 				if(is_dir(SwissServerKnife::getRoot() . '/assets')){
-					$this->css = $this->url . '/assets/css/';
-					$this->js = $this->url . '/assets/js/';
-					$this->img = $this->url . '/assets/img/';
+					$folder = '/' .str_replace($_SERVER['DOCUMENT_ROOT'], null, SwissServerKnife::getRoot());
+
+					$this->css = $this->url . $folder . 'assets/css/';
+					$this->js = $this->url . $folder . 'assets/js/';
+					$this->img = $this->url . $folder . 'assets/img/';
 				}else{
 					die('no CDN');
 				}
@@ -40,4 +42,3 @@
 		}
 	}
 
-	
